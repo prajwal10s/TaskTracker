@@ -2,8 +2,9 @@
 import { type NextPage } from "next";
 import { useRouter } from "next/router";
 import Head from "next/head";
-import { TaskForm } from "~/components/TaskForm";
 import { api } from "~/utils/api";
+import { TaskDetailView } from "~/components/TaskDetailView"; // Import the TaskDetailView component
+import LoadingSpinner from "~/components/LoadingSpinner"; // Assuming you have this component
 
 const TaskDetailPage: NextPage = () => {
   const router = useRouter();
@@ -22,54 +23,53 @@ const TaskDetailPage: NextPage = () => {
     },
   );
 
-  const handleUpdateSuccess = () => {
-    void router.push("/dashboard"); // Redirect back to dashboard after successful update
-  };
-
-  if (!taskId) {
+  // Handle various loading and error states
+  if (!taskId || isLoading) {
     return (
-      <div className="text-center text-gray-600">Loading task details...</div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="text-center text-gray-600">Loading task details...</div>
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <LoadingSpinner />
+        <span className="ml-2 text-gray-600">Loading task details...</span>
+      </div>
     );
   }
 
   if (isError) {
     return (
-      <div className="text-center text-red-500">
+      <div className="rounded-lg bg-red-50 p-4 text-center text-red-500">
         Error loading task: {error.message}
       </div>
     );
   }
 
   if (!task) {
-    return <div className="text-center text-gray-600">Task not found.</div>;
+    return (
+      <div className="rounded-lg bg-gray-50 p-4 text-center text-gray-600">
+        Task not found.
+      </div>
+    );
   }
 
   return (
     <>
       <Head>
-        <title>Edit Task: {task.title} - Taskify</title>
-        <meta
-          name="description"
-          content={`Edit details for task: ${task.title}`}
-        />
+        <title>Task Details: {task.title} - Taskify</title>
+        <meta name="description" content={`Details for task: ${task.title}`} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="container mx-auto p-4">
-        <h1 className="mb-6 text-4xl font-extrabold text-gray-800">
-          Edit Task
-        </h1>
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-4xl font-extrabold text-gray-800">
+            Task Details
+          </h1>
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="rounded-md bg-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-400"
+          >
+            ← Back to Dashboard
+          </button>
+        </div>
         <div className="mx-auto max-w-2xl">
-          <TaskForm
-            initialData={task}
-            onSubmit={handleUpdateSuccess}
-            onCancel={() => router.push("/dashboard")}
-          />
+          <TaskDetailView task={task} /> {/* Render the read-only view */}
         </div>
       </div>
     </>

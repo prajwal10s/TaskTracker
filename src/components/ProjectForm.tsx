@@ -31,16 +31,12 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
   const [projectDescription, setProjectDescription] = useState("");
 
   // tRPC mutation for creating a project
-  // IMPORTANT: You need to have a `projectRouter` and a `create` procedure defined
-  // in your tRPC backend (e.g., `src/server/api/routers/project.ts`).
-  // This procedure should accept an input like `z.object({ name: z.string().min(1), description: z.string().optional() })`
   const createProjectMutation = api.project.create.useMutation({
     onSuccess: () => {
       setProjectName(""); // Clear form fields
       setProjectDescription("");
       onSuccess(); // Call the success callback
     },
-    // You can add onError for more specific error handling if needed
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
