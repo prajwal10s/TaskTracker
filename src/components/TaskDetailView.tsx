@@ -1,45 +1,13 @@
-// src/components/TaskDetailView.tsx
 import React from "react";
-import { format } from "date-fns"; // You'll need to install this: `npm install date-fns`
-import { TaskWithRelations } from "~/types"; // Ensure TaskWithRelations is defined in ~/types.ts
+import { format } from "date-fns";
+import { TaskWithRelations } from "~/types";
+import { getPriorityColor, getStatusColor } from "~/utils/styleUtils";
 
 interface TaskDetailViewProps {
   task: TaskWithRelations;
 }
 
 export const TaskDetailView: React.FC<TaskDetailViewProps> = ({ task }) => {
-  const getPriorityColor = (priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT") => {
-    switch (priority) {
-      case "LOW":
-        return "bg-green-100 text-green-800";
-      case "MEDIUM":
-        return "bg-yellow-100 text-yellow-800";
-      case "HIGH":
-        return "bg-red-100 text-red-500";
-      case "URGENT":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getStatusColor = (
-    status: "TODO" | "IN_PROGRESS" | "DONE" | "BLOCKED",
-  ) => {
-    switch (status) {
-      case "TODO":
-        return "bg-blue-100 text-blue-800";
-      case "IN_PROGRESS":
-        return "bg-purple-100 text-purple-800";
-      case "DONE":
-        return "bg-green-100 text-green-800";
-      case "BLOCKED":
-        return "bg-green-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   return (
     <div className="rounded-lg bg-white p-6 shadow-lg">
       <h2 className="mb-4 text-3xl font-bold text-gray-800">{task.title}</h2>

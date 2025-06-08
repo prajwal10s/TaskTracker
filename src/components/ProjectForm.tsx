@@ -1,8 +1,6 @@
-// src/components/ProjectForm.tsx
 import React, { useState } from "react";
-import { api } from "~/utils/api"; // Assuming your tRPC client setup
+import { api } from "~/utils/api";
 
-// --- Mock/Assumed tRPC Types (ensure these match your actual tRPC types) ---
 interface ProjectInput {
   name: string;
   description?: string;
@@ -14,9 +12,7 @@ interface Project {
   description: string | null;
   createdAt: Date;
   updatedAt: Date;
-  // Potentially add fields like `createdBy` or `teamMembers` if applicable
 }
-// -------------------------------------------------------------------------
 
 interface ProjectFormProps {
   onSuccess: () => void; // Callback to run after successful project creation

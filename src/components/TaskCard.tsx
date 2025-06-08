@@ -1,43 +1,62 @@
-// src/components/TaskCard.tsx
 import React from "react";
-import { api } from "~/utils/api"; // Assuming your tRPC client setup
+import { api } from "~/utils/api";
 import Link from "next/link";
-import { format } from "date-fns"; // You'll need to install this: `npm install date-fns`
-import { Task, Tag } from "@prisma/client";
-import { TaskWithRelations } from "~/types";
-import { types } from "node:util";
-import { TaskWithTags } from "~/types";
-// --- Mock/Assumed tRPC Types (ensure these match your actual tRPC types) ---
-
-// -------------------------------------------------------------------------
+import { format } from "date-fns";
+import { TaskWithRelations, TaskStatus, Priority } from "~/types";
+import { getPriorityColor, getStatusColor } from "~/utils/styleUtils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface TaskCardProps {
   task: TaskWithRelations;
-  onTaskUpdated?: () => void; // Callback to refresh list after update/delete
+  onTaskUpdated?: () => void; // Callback to refresh list after status update/delete
   onTaskDeleted?: () => void;
+  onEditClick: (task: TaskWithRelations) => void; // Callback to trigger edit form
 }
 
 export const TaskCard: React.FC<TaskCardProps> = ({
   task,
   onTaskUpdated,
   onTaskDeleted,
+  onEditClick,
 }) => {
   const toggleTaskStatusMutation = api.task.update.useMutation({
     onSuccess: () => {
-      onTaskUpdated?.(); // Invalidate queries or refetch after successful update
+      onTaskUpdated?.();
+    },
+    onError: (err) => {
+      console.error("Error toggling task status:", err);
+      alert(`Failed to change status: ${err.message}`);
     },
   });
 
   const deleteTaskMutation = api.task.delete.useMutation({
     onSuccess: () => {
-      onTaskDeleted?.(); // Invalidate queries or refetch after successful delete
+      onTaskDeleted?.();
+    },
+    onError: (err) => {
+      console.error("Error deleting task:", err);
+      alert(`Failed to delete task: ${err.message}`);
     },
   });
 
   const handleToggleStatus = () => {
     toggleTaskStatusMutation.mutate({
       id: task.id,
-      status: task.status === "TODO" ? "IN_PROGRESS" : "TODO",
+      // Cycle through status: TODO -> IN_PROGRESS -> DONE -> TODO
+      status:
+        task.status === TaskStatus.TODO
+          ? TaskStatus.IN_PROGRESS
+          : task.status === TaskStatus.IN_PROGRESS
+            ? TaskStatus.DONE
+            : TaskStatus.TODO,
+      // Pass other required fields for update mutation
+      title: task.title,
+      description: task.description || undefined,
+      priority: task.priority,
+      deadline: task.deadline ? task.deadline.toISOString() : undefined,
+      projectId: task.projectId || undefined,
+      assigneeId: task.assigneeId || undefined,
+      tagIds: task.tags.map((tag) => tag.id),
     });
   };
 
@@ -47,59 +66,82 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     }
   };
 
-  const getPriorityColor = (priority: "low" | "medium" | "high") => {
-    switch (priority) {
-      case "low":
-        return "bg-green-100 text-green-800";
-      case "medium":
-        return "bg-yellow-100 text-yellow-800";
-      case "high":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
+  const handleEditClick = () => {
+    onEditClick(task); // Trigger the edit form in TaskManager
   };
+
+  const isLoading =
+    toggleTaskStatusMutation.isPending || deleteTaskMutation.isPending;
 
   return (
     <div
-      className={`relative rounded-lg p-6 shadow-md ${
-        task.status === "DONE"
+      className={`relative rounded-lg p-4 shadow-md ${
+        task.status === TaskStatus.DONE
           ? "border-l-4 border-green-500 bg-gray-50 opacity-80"
           : "border-l-4 border-blue-500 bg-white"
       }`}
     >
-      {task.status === "DONE" && (
-        <span className="absolute right-4 top-4 text-sm font-bold text-green-600">
-          DONE
-        </span>
-      )}
+      {/* Top Right Action Icons */}
+      <div className="absolute right-3 top-3 flex space-x-2">
+        {task.status === TaskStatus.DONE && (
+          <span className="text-sm font-bold text-green-600">DONE</span>
+        )}
+        <button
+          onClick={handleEditClick}
+          className="rounded-md bg-gray-100 p-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+          disabled={isLoading}
+          aria-label="Edit Task"
+        >
+          <FontAwesomeIcon
+            icon={["fas", "pencil-alt"]}
+            className="text-black"
+          />
+        </button>
+
+        <button
+          onClick={handleDeleteTask}
+          className="rounded-md bg-gray-100 p-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+          disabled={isLoading}
+          aria-label="Delete Task"
+        >
+          <FontAwesomeIcon icon={["fas", "trash"]} className="text-black" />
+        </button>
+      </div>
 
       <h3
-        className={`mb-2 text-xl font-bold ${task.status === "DONE" ? "text-gray-500 line-through" : "text-gray-800"}`}
+        className={`mb-2 text-lg font-bold ${
+          task.status === TaskStatus.DONE
+            ? "text-gray-500 line-through"
+            : "text-gray-800"
+        }`}
       >
         {task.title}
       </h3>
-      {task.description && (
-        <p className="mb-3 text-sm italic text-gray-600">{task.description}</p>
-      )}
 
-      <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-gray-700">
-        {task.deadline && (
-          <span className="flex items-center rounded-full bg-blue-100 px-3 py-1 text-blue-800">
-            🗓️ Due: {format(new Date(task.deadline), "PPP p")}
-          </span>
-        )}
-        <span className="flex items-center rounded-full px-3 py-1">
+      <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-gray-700">
+        <span
+          className={`inline-flex items-center rounded-full px-2 py-0.5 font-semibold ${getStatusColor(task.status)}`}
+        >
+          {task.status.replace("_", " ")}
+        </span>
+        <span
+          className={`inline-flex items-center rounded-full px-2 py-0.5 font-semibold ${getPriorityColor(task.priority)}`}
+        >
           {task.priority.toUpperCase()} PRIORITY
         </span>
+        {task.deadline && (
+          <span className="flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-blue-800">
+            🗓️ {format(new Date(task.deadline), "MMM d, h:mm a")}
+          </span>
+        )}
       </div>
 
       {task.tags.length > 0 && (
-        <div className="mb-4 flex flex-wrap gap-2">
+        <div className="mb-3 flex flex-wrap gap-1">
           {task.tags.map((tag) => (
             <span
               key={tag.id}
-              className="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-800"
+              className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-800"
             >
               #{tag.name}
             </span>
@@ -107,55 +149,33 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         </div>
       )}
 
-      {task.assignee && (
-        <div className="mb-4">
-          <p className="mb-1 text-sm font-medium text-gray-700">Assigned To:</p>
-          <div className="flex flex-wrap gap-2">
-            <span
-              key={task.assignee.id}
-              className="rounded-full bg-gray-200 px-3 py-1 text-xs font-semibold text-gray-700"
-            >
-              👤 {task.assignee.name}
-            </span>
-          </div>
-        </div>
-      )}
-
       <div className="mt-4 flex flex-wrap gap-2">
         <button
           onClick={handleToggleStatus}
-          className={`rounded-md px-4 py-2 text-sm font-semibold text-white ${
-            task.status === "IN_PROGRESS"
+          className={`rounded-md px-3 py-1.5 text-xs font-semibold text-white ${
+            task.status === TaskStatus.IN_PROGRESS
               ? "bg-green-500 hover:bg-green-600"
               : "bg-yellow-500 hover:bg-yellow-600"
           }`}
-          disabled={toggleTaskStatusMutation.isPending}
+          disabled={isLoading}
         >
-          {toggleTaskStatusMutation.isPending
+          {isLoading
             ? "Updating..."
-            : task.status === "IN_PROGRESS"
-              ? "Mark Complete"
-              : "Mark Pending"}
+            : task.status === TaskStatus.IN_PROGRESS
+              ? "Mark Done"
+              : "Mark In Progress"}
         </button>
 
         <Link
           href={`/tasks/${task.id}`}
-          className="rounded-md bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600"
+          className="rounded-md bg-blue-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-600"
         >
-          Edit
+          View
         </Link>
-
-        <button
-          onClick={handleDeleteTask}
-          className="rounded-md bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600"
-          disabled={deleteTaskMutation.isPending}
-        >
-          {deleteTaskMutation.isPending ? "Deleting..." : "Delete"}
-        </button>
       </div>
 
       {(toggleTaskStatusMutation.isError || deleteTaskMutation.isError) && (
-        <p className="mt-2 text-sm text-red-500">
+        <p className="mt-2 text-xs text-red-500">
           Error:{" "}
           {toggleTaskStatusMutation.error?.message ||
             deleteTaskMutation.error?.message}

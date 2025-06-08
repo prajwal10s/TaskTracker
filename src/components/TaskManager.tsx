@@ -1,27 +1,33 @@
 // src/components/TaskManager.tsx
 import React, { useState, useEffect } from "react";
 import { TaskList } from "./TaskList"; // TaskList remains a separate component for display
-import DatePicker from "react-datepicker"; // You'll need to install this: `npm install react-datepicker @types/react-datepicker`
-import "react-datepicker/dist/react-datepicker.css"; // Don't forget to import the CSS
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { api } from "~/utils/api"; // tRPC client setup
 import { TaskStatus, Priority, TaskWithRelations } from "~/types"; // Ensure these types are defined in ~/types.ts or similar
 import LoadingSpinner from "./LoadingSpinner"; // Assuming you have a basic LoadingSpinner component
+import { getPriorityColor, getStatusColor } from "~/utils/styleUtils"; // Import centralized style utils
 
+// --- Local Interfaces for form data consistency (matching backend tRPC input for creation/update) ---
 interface TaskFormInput {
   title: string;
-  description?: string;
-  status: TaskStatus;
-  priority: Priority;
-  deadline?: string;
-  projectId?: string;
-  assigneeId?: string;
-  tagIds: string[];
+  description?: string; // Optional, corresponds to Zod's .optional()
+  status: TaskStatus; // Corresponds to Zod enum
+  priority: Priority; // Corresponds to Zod enum
+  deadline?: string; // Expects string (ISO date) or undefined
+  projectId?: string; // Optional, corresponds to Zod's .optional()
+  assigneeId?: string; // Optional, corresponds to Zod's .optional()
+  tagIds: string[]; // Array of tag IDs
 }
+// --------------------------------------------------------------------------------
 
 export const TaskManager: React.FC = () => {
   const [showTaskForm, setShowTaskForm] = useState(false);
+  const [initialTaskData, setInitialTaskData] = useState<
+    TaskWithRelations | undefined
+  >(undefined); // State for editing
 
-  // --- Task Form State (always initialized for a new task) ---
+  // --- Task Form State ---
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<TaskStatus>(TaskStatus.TODO);
@@ -32,28 +38,35 @@ export const TaskManager: React.FC = () => {
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [newTagName, setNewTagName] = useState(""); // State for new tag input
 
+  const isEditing = !!initialTaskData; // Determine if the form is in edit mode
+
+  // --- tRPC Queries for dropdowns and tag creation (now conditional) ---
   const {
     data: users,
     isLoading: usersLoading,
     error: usersError,
-  } = api.user.getAll.useQuery();
+  } = api.user.getAll.useQuery(undefined, { enabled: showTaskForm }); // Only fetch when form is shown
   const {
     data: projects,
     isLoading: projectsLoading,
     error: projectsError,
-  } = api.project.getAll.useQuery();
+  } = api.project.getAll.useQuery(undefined, { enabled: showTaskForm }); // Only fetch when form is shown
   const {
     data: tags,
     isLoading: tagsLoading,
     error: tagsError,
     refetch: refetchTags,
-  } = api.tag.getAll.useQuery();
+  } = api.tag.getAll.useQuery(undefined, { enabled: showTaskForm }); // Only fetch when form is shown
 
+  // --- Get tRPC context for cache invalidation ---
+  const trpcContext = api.useUtils();
+
+  // --- tRPC Mutations for tasks and tags ---
   const createTagMutation = api.tag.create.useMutation({
     onSuccess: (newTag) => {
       setNewTagName("");
       setSelectedTagIds((prev) => [...prev, newTag.id]);
-      void refetchTags();
+      void refetchTags(); // Re-fetch tags to ensure UI is updated with the new tag
     },
     onError: (error) => {
       console.error("Error creating tag:", error);
@@ -63,9 +76,10 @@ export const TaskManager: React.FC = () => {
 
   const createTaskMutation = api.task.create.useMutation({
     onSuccess: () => {
-      // Here we Close the form and trigger list refetch
       console.log("Task created successfully!");
-      handleTaskFormSuccess();
+      // --- IMPORTANT: Invalidate the task query to trigger a refetch in TaskList ---
+      void trpcContext.task.getAllForGivenProjects.invalidate(); // Invalidate the specific query
+      handleTaskFormSuccess(); // Close form
     },
     onError: (err) => {
       console.error("Error creating task:", err);
@@ -73,50 +87,85 @@ export const TaskManager: React.FC = () => {
     },
   });
 
-  // Effect to reset form fields when form is opened for creation
+  // Re-added updateTaskMutation for editing functionality
+  const updateTaskMutation = api.task.update.useMutation({
+    onSuccess: () => {
+      console.log("Task updated successfully!");
+      void trpcContext.task.getAllForGivenProjects.invalidate(); // Invalidate after update
+      handleTaskFormSuccess(); // Close form
+    },
+    onError: (err) => {
+      console.error("Error updating task:", err);
+      alert(`Failed to update task: ${err.message}`);
+    },
+  });
+
+  // Effect to populate form when `initialTaskData` changes (for editing)
   useEffect(() => {
-    if (showTaskForm) {
-      // Only reset when the form is *opened* for creation
+    if (initialTaskData) {
+      // Use initialTaskData for effect
+      setTitle(initialTaskData.title);
+      setDescription(initialTaskData.description || "");
+      setStatus(initialTaskData.status);
+      setPriority(initialTaskData.priority);
+      setDeadline(initialTaskData.deadline);
+      setProjectId(initialTaskData.projectId || null);
+      setAssigneeId(initialTaskData.assigneeId || null);
+      setSelectedTagIds(initialTaskData.tags.map((tag) => tag.id));
+      setShowTaskForm(true); // Open the form automatically if initial data is provided
+    } else {
+      // Reset form fields when opening for a new task or if no initial data is provided
       setTitle("");
       setDescription("");
       setStatus(TaskStatus.TODO);
-      setPriority(Priority.LOW);
+      setPriority(Priority.MEDIUM);
       setDeadline(null);
       setProjectId(null);
       setAssigneeId(null);
       setSelectedTagIds([]);
       setNewTagName("");
     }
-  }, [showTaskForm]);
+  }, [initialTaskData]); // Depend on initialTaskData
 
+  // Handle successful form submission (from within TaskManager's form)
   const handleTaskFormSuccess = () => {
     setShowTaskForm(false);
-    // TaskList handles its own refetch on change/mutation,
+    setInitialTaskData(undefined); // Clear initial data after successful submission
   };
 
-  // Handle form submission (only create task)
+  // Handle form submission (create/update task)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Construct task data, converting Date to ISO string and handling undefined for optional fields
     const taskData: TaskFormInput = {
       title,
       description: description.trim() === "" ? undefined : description,
       status,
       priority,
-      deadline: deadline ? deadline.toISOString() : undefined,
-      projectId: projectId || undefined,
-      assigneeId: assigneeId || undefined,
+      deadline: deadline ? deadline.toISOString() : undefined, // Convert Date to ISO string
+      projectId: projectId || undefined, // string or undefined
+      assigneeId: assigneeId || undefined, // string or undefined
       tagIds: selectedTagIds,
     };
 
-    console.log("Attempting to create task with data:", taskData); // Debugging log
+    console.log("Attempting to save task with data:", taskData); // Debugging log
 
     try {
-      await createTaskMutation.mutateAsync(taskData);
-      // onSuccess is called within the mutation's onSuccess callback
+      if (isEditing && initialTaskData?.id) {
+        // Use initialTaskData
+        await updateTaskMutation.mutateAsync({
+          id: initialTaskData.id,
+          ...taskData,
+        });
+      } else {
+        await createTaskMutation.mutateAsync(taskData);
+      }
     } catch (error) {
-      // This catch block would only execute for errors not caught by the mutation's onError handler
-      console.error("Caught unexpected error during form submission:", error);
+      console.error(
+        "Caught unexpected error during form submission (should be handled by mutation onError):",
+        error,
+      );
     }
   };
 
@@ -137,31 +186,34 @@ export const TaskManager: React.FC = () => {
 
   const handleCancelForm = () => {
     setShowTaskForm(false);
+    setInitialTaskData(undefined);
   };
 
-  // Combine loading states for all tRPC queries and mutations
+  const handleEditTaskFromList = (task: TaskWithRelations) => {
+    setInitialTaskData(task);
+  };
+
   const overallLoading =
     usersLoading ||
     projectsLoading ||
     tagsLoading ||
-    createTaskMutation.isPending || // Only createTaskMutation is relevant now
+    createTaskMutation.isPending ||
+    updateTaskMutation.isPending ||
     createTagMutation.isPending;
 
-  // Combine error states for all tRPC queries and mutations
   const hasError =
     usersError ||
     projectsError ||
     tagsError ||
-    createTaskMutation.isError || // Only createTaskMutation is relevant now
+    createTaskMutation.isError ||
+    updateTaskMutation.isError ||
     createTagMutation.isError;
 
-  // Display a loading spinner if any data is still being fetched (and form is not yet visible)
   if (overallLoading && !showTaskForm) {
     return <LoadingSpinner />;
   }
 
-  // Display a combined error message if any tRPC operation failed
-  if (hasError) {
+  if (hasError && showTaskForm) {
     return (
       <div className="rounded-lg bg-red-50 p-4 text-center text-red-500">
         Error loading data or submitting:
@@ -169,6 +221,7 @@ export const TaskManager: React.FC = () => {
           projectsError?.message ||
           tagsError?.message ||
           createTaskMutation.error?.message ||
+          updateTaskMutation.error?.message || // Display update error
           createTagMutation.error?.message}
       </div>
     );
@@ -177,10 +230,10 @@ export const TaskManager: React.FC = () => {
   return (
     <div className="rounded-lg bg-white p-6 shadow-lg">
       <h2 className="mb-6 text-2xl font-bold text-gray-800">Your Tasks</h2>
-
       <div className="mb-8 flex justify-end">
         <button
           onClick={() => {
+            setInitialTaskData(undefined); // Ensure no initial data when creating new
             setShowTaskForm(true);
           }}
           className="rounded-md bg-green-600 px-6 py-3 text-lg font-semibold text-white shadow-md hover:bg-green-700"
@@ -188,15 +241,15 @@ export const TaskManager: React.FC = () => {
           + Create New Task
         </button>
       </div>
-
       {showTaskForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
           <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg">
             <h2 className="mb-6 text-2xl font-bold text-gray-800">
-              Create New Task {/* Simplified title */}
+              {isEditing ? "Edit Task" : "Create New Task"}{" "}
+              {/* Dynamic title */}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Title Field */}
+              {/* Form Fields */}
               <div>
                 <label
                   htmlFor="title"
@@ -215,7 +268,6 @@ export const TaskManager: React.FC = () => {
                 />
               </div>
 
-              {/* Description Field */}
               <div>
                 <label
                   htmlFor="description"
@@ -233,7 +285,6 @@ export const TaskManager: React.FC = () => {
                 ></textarea>
               </div>
 
-              {/* Status Dropdown */}
               <div>
                 <label
                   htmlFor="status"
@@ -256,7 +307,6 @@ export const TaskManager: React.FC = () => {
                 </select>
               </div>
 
-              {/* Priority Dropdown */}
               <div>
                 <label
                   htmlFor="priority"
@@ -279,7 +329,6 @@ export const TaskManager: React.FC = () => {
                 </select>
               </div>
 
-              {/* Deadline DatePicker */}
               <div>
                 <label
                   htmlFor="deadline"
@@ -298,7 +347,6 @@ export const TaskManager: React.FC = () => {
                 />
               </div>
 
-              {/* Project Dropdown */}
               <div>
                 <label
                   htmlFor="project"
@@ -308,8 +356,8 @@ export const TaskManager: React.FC = () => {
                 </label>
                 <select
                   id="project"
-                  value={projectId || ""} // Handle null state for initial render
-                  onChange={(e) => setProjectId(e.target.value || null)} // Set to null if empty option selected
+                  value={projectId || ""}
+                  onChange={(e) => setProjectId(e.target.value || null)}
                   className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                   disabled={overallLoading}
                 >
@@ -322,7 +370,6 @@ export const TaskManager: React.FC = () => {
                 </select>
               </div>
 
-              {/* Assignee Dropdown */}
               <div>
                 <label
                   htmlFor="assignee"
@@ -332,8 +379,8 @@ export const TaskManager: React.FC = () => {
                 </label>
                 <select
                   id="assignee"
-                  value={assigneeId || ""} // Handle null state for initial render
-                  onChange={(e) => setAssigneeId(e.target.value || null)} // Set to null if empty option selected
+                  value={assigneeId || ""}
+                  onChange={(e) => setAssigneeId(e.target.value || null)}
                   className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                   disabled={overallLoading}
                 >
@@ -346,7 +393,6 @@ export const TaskManager: React.FC = () => {
                 </select>
               </div>
 
-              {/* Tags Multi-select and New Tag Creation */}
               <div>
                 <label
                   htmlFor="tags"
@@ -403,23 +449,29 @@ export const TaskManager: React.FC = () => {
                   className="rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
                   disabled={overallLoading}
                 >
-                  {createTaskMutation.isPending ? "Creating..." : "Create Task"}{" "}
-                  {/* Simplified button text */}
+                  {overallLoading
+                    ? "Saving..."
+                    : isEditing
+                      ? "Save Changes"
+                      : "Create Task"}
                 </button>
               </div>
 
-              {/* {createTaskMutation.isError && ( // Only check createTaskMutation error
+              {/* Error Messages (if any mutation fails) */}
+              {(createTaskMutation.isError || updateTaskMutation.isError) && (
                 <p className="mt-4 text-sm text-red-500">
-                  Error: {createTaskMutation.error?.message}
+                  Error:{" "}
+                  {createTaskMutation.error?.message ||
+                    updateTaskMutation.error?.message}
                 </p>
-              )} */}
+              )}
             </form>
           </div>
         </div>
       )}
-
       {/* The TaskList component will fetch and display tasks */}
-      <TaskList />
+      <TaskList onEditTask={handleEditTaskFromList} />{" "}
+      {/* Pass the edit callback */}
     </div>
   );
 };

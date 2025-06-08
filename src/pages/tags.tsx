@@ -1,4 +1,3 @@
-// src/pages/tags.tsx
 import { type NextPage } from "next";
 import Head from "next/head";
 import { TagManager } from "~/components/TagManager";
@@ -7,7 +6,7 @@ const TagsPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Manage Tags - Taskify</title>
+        <title>Manage Tags - TaskTracker</title>
         <meta
           name="description"
           content="Create and manage tags for your tasks"

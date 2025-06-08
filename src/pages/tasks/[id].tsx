@@ -52,7 +52,7 @@ const TaskDetailPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Task Details: {task.title} - Taskify</title>
+        <title>Task Details: {task.title} - TaskTracker</title>
         <meta name="description" content={`Details for task: ${task.title}`} />
         <link rel="icon" href="/favicon.ico" />
       </Head>

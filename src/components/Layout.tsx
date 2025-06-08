@@ -14,7 +14,7 @@ const Layout = ({ children }: LayoutProps) => {
       <header className="bg-blue-600 p-4 text-white shadow-md">
         <nav className="container mx-auto flex items-center justify-between">
           <Link href="/dashboard" className="text-2xl font-bold">
-            Taskify
+            TaskTracker
           </Link>
           <div>
             {status === "authenticated" ? (
@@ -47,7 +47,7 @@ const Layout = ({ children }: LayoutProps) => {
       </header>
       <main className="container mx-auto flex-grow p-4">{children}</main>
       <footer className="bg-gray-200 p-4 text-center text-gray-600">
-        &copy; {new Date().getFullYear()} Taskify
+        &copy; {new Date().getFullYear()} TaskTracker
       </footer>
     </div>
   );

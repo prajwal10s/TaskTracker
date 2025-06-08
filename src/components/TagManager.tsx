@@ -1,13 +1,10 @@
-// src/components/TagManager.tsx
 import React, { useState } from "react";
-import { api } from "~/utils/api"; // Assuming your tRPC client setup
+import { api } from "~/utils/api";
 
-// --- Mock/Assumed tRPC Types (ensure these match your actual tRPC types) ---
 interface Tag {
   id: string;
   name: string;
 }
-// -------------------------------------------------------------------------
 
 export const TagManager: React.FC = () => {
   const [newTagName, setNewTagName] = useState("");

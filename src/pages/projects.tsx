@@ -47,8 +47,11 @@ const ProjectsPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Projects - Taskify</title>
-        <meta name="description" content="Manage your projects in Taskify" />
+        <title>Projects - TaskTracker</title>
+        <meta
+          name="description"
+          content="Manage your projects in TaskTracker"
+        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="container mx-auto p-4">

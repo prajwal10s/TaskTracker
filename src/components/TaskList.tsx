@@ -1,12 +1,15 @@
 // src/components/TaskList.tsx
 import React from "react";
-import { api } from "~/utils/api"; // Assuming your tRPC client setup
+import { api } from "~/utils/api";
 import { TaskCard } from "./TaskCard";
 import { Task } from "@prisma/client";
 import { TaskWithRelations, TaskWithTags } from "~/types";
 
-export const TaskList: React.FC = () => {
-  // `useQuery` automatically handles re-fetching when `invalidateQueries` is called
+interface TaskListProps {
+  onEditTask: (task: TaskWithRelations) => void;
+}
+
+export const TaskList: React.FC<TaskListProps> = ({ onEditTask }) => {
   const {
     data: accessibleProjects,
     isLoading,
@@ -64,6 +67,7 @@ export const TaskList: React.FC = () => {
           task={task}
           onTaskUpdated={handleTaskChange}
           onTaskDeleted={handleTaskChange}
+          onEditClick={onEditTask}
         />
       ))}
     </div>
