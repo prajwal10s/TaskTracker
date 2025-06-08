@@ -177,9 +177,9 @@ This is your main task overview.
 
     View Tasks: All tasks accessible to you will be displayed as compact cards.
 
-    Toggle Status: Click the "Mark In Progress" / "Mark Done" button on a task card to quickly cycle its status.
-
     View Task Details: Click the "View" button on any task card to navigate to a read-only page with full task information.
+
+    Toggle Status: Click the "Mark In Progress" / "Mark Done" button on a task card to quickly cycle its status.
 
     Edit Task: Click the "Edit" icon (pencil) on a task card to open the task form pre-filled with the task's current data. Make changes and click "Save Changes".
 
@@ -193,79 +193,84 @@ Task Detail Page (/tasks/[id])
 
 Project Management (/projects)
 
-    If implemented, navigate to this page to create and manage your projects.
+    Navigate to this page to create and manage your projects.
 
 Tag Management (/tags)
 
-    If implemented, navigate to this page to create and manage your task tags.
+    Navigate to this page to create and manage your task tags.
 
 📂 Project Structure
 
-./
-├── .env
-├── .env.example
-├── .env.local
-├── .eslintrc.cjs
-├── .gitignore
-├── next-env.d.ts
-├── next.config.js
-├── package-lock.json
-├── package.json
-├── postcss.config.cjs
-├── prettier.config.js
-├── prisma/
-│   └── schema.prisma
-├── public/
-│   └── favicon.ico
-├── README.md
-├── src/
-│   ├── components/
-│   │   ├── Layout.tsx
-│   │   ├── LoadingSpinner.tsx
-│   │   ├── ProjectForm.tsx
-│   │   ├── TagManager.tsx
-│   │   ├── TaskCard.tsx
-│   │   ├── TaskDetailView.tsx
-│   │   ├── TaskList.tsx
-│   │   ├── TaskManager.tsx
-│   │   └── UserProfileForm.tsx
-│   ├── env.js
-│   ├── lib/
-│   │   └── fontawesome.ts
-│   ├── pages/
-│   │   ├── \_app.tsx
-│   │   ├── api/
-│   │   │   ├── auth/
-│   │   │   │   └── [...nextauth].ts
-│   │   │   └── trpc/
-│   │   │   └── [trpc].ts
-│   │   ├── dashboard.tsx
-│   │   ├── index.tsx
-│   │   ├── profile.tsx
-│   │   ├── projects.tsx
-│   │   ├── tags.tsx
-│   │   └── tasks/
-│   │   └── [id].tsx
-│   ├── server/
-│   │   ├── api/
-│   │   │   ├── root.ts
-│   │   │   ├── routers/
-│   │   │   │   ├── project.ts
-│   │   │   │   ├── tag.ts
-│   │   │   │   ├── task.ts
-│   │   │   │   └── user.ts
-│   │   │   └── trpc.ts
-│   │   ├── auth.ts
-│   │   └── db.ts
-│   ├── structure.txt
-│   ├── styles/
-│   │   └── globals.css
-│   ├── types/
-│   │   └── index.ts
-│   └── utils/
-│   ├── api.ts
-│   └── styleUtils.ts
-├── start-database.sh\*
-├── structure.txt
-├── tailwind.config.ts
-└── tsconfig.json
+    ./
+    ├── .env
+    ├── .env.example
+    ├── .env.local
+    ├── .eslintrc.cjs
+    ├── .gitignore
+    ├── next-env.d.ts
+    ├── next.config.js
+    ├── package-lock.json
+    ├── package.json
+    ├── postcss.config.cjs
+    ├── prettier.config.js
+    ├── prisma/
+    │   └── schema.prisma
+    ├── public/
+    │   └── favicon.ico
+    ├── README.md
+    ├── src/
+    │   ├── components/
+    │   │   ├── Layout.tsx
+    │   │   ├── LoadingSpinner.tsx
+    │   │   ├── ProjectForm.tsx
+    │   │   ├── TagManager.tsx
+    │   │   ├── TaskCard.tsx
+    │   │   ├── TaskDetailView.tsx
+    │   │   ├── TaskList.tsx
+    │   │   ├── TaskManager.tsx
+    │   │   └── UserProfileForm.tsx
+    │   ├── env.js
+    │   ├── lib/
+    │   │   └── fontawesome.ts
+    │   ├── pages/
+    │   │   ├── \_app.tsx
+    │   │   ├── api/
+    │   │   │   ├── auth/
+    │   │   │   │   └── [...nextauth].ts
+    │   │   │   └── trpc/
+    │   │   │   └── [trpc].ts
+    │   │   ├── dashboard.tsx
+    │   │   ├── index.tsx
+    │   │   ├── profile.tsx
+    │   │   ├── projects.tsx
+    │   │   ├── tags.tsx
+    │   │   └── tasks/
+    │   │   └── [id].tsx
+    │   ├── server/
+    │   │   ├── api/
+    │   │   │   ├── root.ts
+    │   │   │   ├── routers/
+    │   │   │   │   ├── project.ts
+    │   │   │   │   ├── tag.ts
+    │   │   │   │   ├── task.ts
+    │   │   │   │   └── user.ts
+    │   │   │   └── trpc.ts
+    │   │   ├── auth.ts
+    │   │   └── db.ts
+    │   ├── structure.txt
+    │   ├── styles/
+    │   │   └── globals.css
+    │   ├── types/
+    │   │   └── index.ts
+    │   └── utils/
+    │   ├── api.ts
+    │   └── styleUtils.ts
+    ├── start-database.sh\*
+    ├── structure.txt
+    ├── tailwind.config.ts
+    └── tsconfig.json
+
+Issues Faced
+
+    Delay in queries:
+        Solved by changing the region for Supabase and also adding an index on assigneedID in task to quickly view dashboard

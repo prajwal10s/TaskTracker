@@ -5,7 +5,6 @@ import { useState } from "react";
 import { ProjectForm } from "~/components/ProjectForm"; // Import your new component
 import { api } from "~/utils/api"; // For fetching projects
 
-// --- Mock Project Interface (ensure it matches your backend) ---
 interface Project {
   id: string;
   name: string;
@@ -18,7 +17,6 @@ interface Project {
 const ProjectsPage: NextPage = () => {
   const [showProjectForm, setShowProjectForm] = useState(false);
 
-  // Fetch all projects (assuming you have a `getAll` procedure in your projectRouter)
   const {
     data: projects,
     isLoading,
@@ -26,6 +24,13 @@ const ProjectsPage: NextPage = () => {
     error,
     refetch,
   } = api.project.getAll.useQuery();
+
+  const {
+    data: users,
+    isLoading: tagsLoading,
+    error: tagsError,
+    refetch: refetchUsers,
+  } = api.user.getAll.useQuery(undefined, { enabled: showProjectForm });
 
   const handleProjectFormSuccess = () => {
     setShowProjectForm(false); // Close the form
@@ -72,6 +77,7 @@ const ProjectsPage: NextPage = () => {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
             <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg">
               <ProjectForm
+                data={users}
                 onSuccess={handleProjectFormSuccess}
                 onCancel={() => setShowProjectForm(false)}
               />

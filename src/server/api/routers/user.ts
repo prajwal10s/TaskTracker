@@ -5,7 +5,7 @@ import { TRPCError } from "@trpc/server";
 export const userRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
     // Return only necessary user info for assignees
-    return ctx.db.user.findMany({
+    const allUsers = await ctx.db.user.findMany({
       select: {
         id: true,
         name: true,
@@ -13,6 +13,7 @@ export const userRouter = createTRPCRouter({
       },
       orderBy: { name: "asc" },
     });
+    return allUsers;
   }),
 
   getProfile: protectedProcedure.query(async ({ ctx }) => {
@@ -57,4 +58,14 @@ export const userRouter = createTRPCRouter({
       });
       return updatedUser;
     }),
+  getAllAssignedTasks: protectedProcedure.query(async ({ ctx }) => {
+    // Return the assigned tasks for the user
+    const tasks = await ctx.db.user.findUnique({
+      where: { id: ctx.session.user.id },
+      include: {
+        assignedTasks: true,
+      },
+    });
+    return tasks;
+  }),
 });

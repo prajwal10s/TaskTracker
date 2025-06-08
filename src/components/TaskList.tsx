@@ -4,30 +4,22 @@ import { api } from "~/utils/api";
 import { TaskCard } from "./TaskCard";
 import { Task } from "@prisma/client";
 import { TaskWithRelations, TaskWithTags } from "~/types";
+import { useSession } from "next-auth/react";
 
 interface TaskListProps {
   onEditTask: (task: TaskWithRelations) => void;
 }
 
 export const TaskList: React.FC<TaskListProps> = ({ onEditTask }) => {
-  const {
-    data: accessibleProjects,
-    isLoading,
-    isError,
-    error,
-  } = api.project.getAll.useQuery();
-
-  const accessibleProjectIds = accessibleProjects?.map((proj) => proj.id) || [];
-
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
   const {
     data: tasks,
     isLoading: isLoadingTasks,
     isError: isErrorTasks,
     error: tasksError,
     refetch, // refetch tasks when needed
-  } = api.task.getAllForGivenProjects.useQuery(
-    { projectIds: accessibleProjectIds }, // Pass the filtered project IDs
-  );
+  } = api.task.getAll.useQuery({ assigneeId: userId });
 
   const handleTaskChange = () => {
     // This will refetch tasks after any task is updated or deleted,
@@ -43,15 +35,8 @@ export const TaskList: React.FC<TaskListProps> = ({ onEditTask }) => {
     );
   }
 
-  if (!tasks || tasks.length === 0) {
+  if (!tasks) {
     // Consider adding a message if no projects are accessible
-    if (!accessibleProjects || accessibleProjects.length === 0) {
-      return (
-        <div className="text-center text-gray-600">
-          You don't have access to any projects, or no projects exist.
-        </div>
-      );
-    }
     return (
       <div className="text-center text-gray-600">
         No tasks found in your accessible projects. Create a new one!

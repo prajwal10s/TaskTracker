@@ -65,15 +65,21 @@ export const projectRouter = createTRPCRouter({
       z.object({
         name: z.string().min(1, "Project name is required"),
         description: z.string().optional(),
+        members: z.array(z.string()).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      let usersToConnect: { id: string }[] =
+        input.members?.map((id) => ({ id })) || [];
+      if (!usersToConnect.includes({ id: ctx.session.user.id })) {
+        usersToConnect.push({ id: ctx.session.user.id });
+      }
       const project = await ctx.db.project.create({
         data: {
           name: input.name,
           description: input.description,
           creator: { connect: { id: ctx.session.user.id } },
-          members: { connect: { id: ctx.session.user.id } }, // Creator is automatically a member
+          members: { connect: usersToConnect },
         },
       });
       return project;

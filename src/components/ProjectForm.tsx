@@ -15,22 +15,32 @@ interface Project {
 }
 
 interface ProjectFormProps {
+  data: { id: string; name: string | null; email: string | null }[] | undefined;
   onSuccess: () => void; // Callback to run after successful project creation
   onCancel?: () => void; // Optional: Callback to handle form cancellation
 }
 
 export const ProjectForm: React.FC<ProjectFormProps> = ({
+  data: users,
   onSuccess,
   onCancel,
 }) => {
   const [projectName, setProjectName] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+
+  // Handler for multi-select users dropdown
+  const handleUserChanges = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const options = Array.from(e.target.selectedOptions);
+    setSelectedUserIds(options.map((option) => option.value));
+  };
 
   // tRPC mutation for creating a project
   const createProjectMutation = api.project.create.useMutation({
     onSuccess: () => {
       setProjectName(""); // Clear form fields
       setProjectDescription("");
+      setSelectedUserIds([]);
       onSuccess(); // Call the success callback
     },
   });
@@ -41,6 +51,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
       await createProjectMutation.mutateAsync({
         name: projectName.trim(),
         description: projectDescription.trim() || undefined, // Send undefined if empty
+        members: selectedUserIds,
       });
     }
   };
@@ -87,7 +98,19 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
           disabled={isLoading}
         />
       </div>
-
+      <select
+        id="members"
+        multiple // Allow multiple selections
+        value={selectedUserIds}
+        onChange={handleUserChanges}
+        className="mt-1 block h-24 w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+      >
+        {users?.map((user) => (
+          <option key={user.id} value={user.id}>
+            {user.name}
+          </option>
+        ))}
+      </select>
       <div className="flex justify-end space-x-3">
         {onCancel && (
           <button

@@ -98,7 +98,7 @@ model Task {
   project     Project?   @relation(name:"ProjectTasks", fields: [projectId], references: [id], onDelete: SetNull)
 
   // Relation: Task can be assigned to a user (optional)
-  assigneeId  String?    // Task can be assigned to a user (optional)
+  assigneeId  String?    
   assignee    User?      @relation(name:"TaskAssignee",fields: [assigneeId], references: [id], onDelete: SetNull)
 
   // Relation: The user who created the task
@@ -107,6 +107,11 @@ model Task {
 
   // Relation: Many-to-many relationship with tags
   tags        Tag[]      @relation(name:"TaskTags")// Many-to-many relationship with tags
+
+
+  //adding index to improve dashboard performance
+
+  @@index(fields: [assigneeId])
 }
 
 enum TaskStatus {
