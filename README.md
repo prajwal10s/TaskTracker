@@ -4,7 +4,7 @@ TaskTracker is a robust and intuitive task management application built with the
 
 ✨ Features
 
-    Task Creation & Management: Create new tasks with title, description, status (Todo, In Progress, Done), priority (Low, Medium, High, Urgent), deadline, assigned project, assignee and multiple tags.
+    Task Creation & Management: Create new tasks with title, description, status (Todo, In Progress, Done, Blocked), priority (Low, Medium, High, Urgent), setting deadline, assigned project, assignee and multiple tags.
 
     Task Details View: View details of any task by using view button.
 
@@ -20,6 +20,46 @@ TaskTracker is a robust and intuitive task management application built with the
 
     Real-time Updates: Utilizes tRPC and React Query for efficient data fetching and updates, ensuring the UI reflects changes promptly.
 
+✨ Future Features
+
+    Dashboard that lets you filter your tasks based on deadlines, tags, and many more
+    Project tasks filtering based on status
+
+🖥️ Usage
+Dashboard (/dashboard)
+
+This is your main task overview.
+
+    Create New Task: Click the + Create New Task button to open a modal form. Fill in the task details (title, description, status, priority, deadline, project, assignee, tags) and click "Create Task".
+
+    View Tasks: All tasks accessible to you will be displayed as compact cards.
+
+    View Task Details: Click the "View" button on any task card to navigate to a read-only page with full task information.
+
+    Toggle Status: Click the "Mark In Progress" / "Mark Done" button on a task card to quickly cycle its status.
+
+    Edit Task: Click the "Edit" icon (pencil) on a task card to open the task form pre-filled with the task's current data. Make changes and click "Save Changes".
+
+    Delete Task: Click the "Delete" icon (trash can) on a task card to delete the task (requires confirmation).
+
+    Add tags: You can multi select Tags
+
+    On fly create tags: In the form itself you can create new tags and those will be populated in the tags list
+
+Task Detail Page (/tasks/[id])
+
+    Access this page by clicking the "View" button on a task card. It provides a comprehensive, read-only view of a single task.
+
+    Click the "← Back to Dashboard" button to return to the main task list.
+
+Project Management (/projects)
+
+    Navigate to this page to create and manage your projects.
+
+Tag Management (/tags)
+
+    Navigate to this page to create and manage your task tags.
+
 Technologies
 
 Initial Project Setup
@@ -27,26 +67,26 @@ Initial Project Setup
     npm create t3-app@7.37.0
     below options:
 
-◇ Will you be using TypeScript or JavaScript?
-│ TypeScript
-│
-◇ Will you be using Tailwind CSS for styling?
-│ Yes
-│
-◇ Would you like to use tRPC?
-│ Yes
-│
-◇ What authentication provider would you like to use?
-│ NextAuth.js
-│
-◇ What database ORM would you like to use?
-│ Prisma
-│
-◇ Would you like to use Next.js App Router?
-│ No
-│
-◇ What database provider would you like to use?
-│ PostgreSQL
+        ◇ Will you be using TypeScript or JavaScript?
+        │ TypeScript
+        │
+        ◇ Will you be using Tailwind CSS for styling?
+        │ Yes
+        │
+        ◇ Would you like to use tRPC?
+        │ Yes
+        │
+        ◇ What authentication provider would you like to use?
+        │ NextAuth.js
+        │
+        ◇ What database ORM would you like to use?
+        │ Prisma
+        │
+        ◇ Would you like to use Next.js App Router?
+        │ No
+        │
+        ◇ What database provider would you like to use?
+        │ PostgreSQL
 
     Rest:
 
@@ -114,7 +154,7 @@ Before you begin, ensure you have the following installed:
 
     Git
 
-    A PostgreSQL database (or you can use Supabase, PlanetScale, or a local SQLite for development convenience with Prisma).
+    Supabase(for serverless)
 
 🛠️ Getting Started
 
@@ -134,7 +174,7 @@ Follow these steps to get TaskTracker up and running on your local machine:
     Create a .env file in the root of your project based on .env.example.
 
     DATABASE_URL="postgresql://user:password@host:port/database"
-    # Example for Supabase: DATABASE_URL="postgresql://postgres:[YOUR_PASSWORD]@db.[YOUR_SUPABASE_REF].supabase.co:5432/postgres"
+    # Example for Supabase: please check env example for details
 
     # For NextAuth.js
     NEXTAUTH_SECRET="YOUR_NEXTAUTH_SECRET" # Generate a strong secret using command openssl rand -base64 32
@@ -168,38 +208,7 @@ Follow these steps to get TaskTracker up and running on your local machine:
 
     The application should now be running at http://localhost:3000.
 
-🖥️ Usage
-Dashboard (/dashboard)
-
-This is your main task overview.
-
-    Create New Task: Click the + Create New Task button to open a modal form. Fill in the task details (title, description, status, priority, deadline, project, assignee, tags) and click "Create Task".
-
-    View Tasks: All tasks accessible to you will be displayed as compact cards.
-
-    View Task Details: Click the "View" button on any task card to navigate to a read-only page with full task information.
-
-    Toggle Status: Click the "Mark In Progress" / "Mark Done" button on a task card to quickly cycle its status.
-
-    Edit Task: Click the "Edit" icon (pencil) on a task card to open the task form pre-filled with the task's current data. Make changes and click "Save Changes".
-
-    Delete Task: Click the "Delete" icon (trash can) on a task card to delete the task (requires confirmation).
-
-Task Detail Page (/tasks/[id])
-
-    Access this page by clicking the "View" button on a task card. It provides a comprehensive, read-only view of a single task.
-
-    Click the "← Back to Dashboard" button to return to the main task list.
-
-Project Management (/projects)
-
-    Navigate to this page to create and manage your projects.
-
-Tag Management (/tags)
-
-    Navigate to this page to create and manage your task tags.
-
-📂 Project Structure
+📂 Project Structure -reference
 
     ./
     ├── .env

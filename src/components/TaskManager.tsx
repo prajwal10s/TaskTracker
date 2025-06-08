@@ -78,7 +78,8 @@ export const TaskManager: React.FC = () => {
     onSuccess: () => {
       console.log("Task created successfully!");
       // --- IMPORTANT: Invalidate the task query to trigger a refetch in TaskList ---
-      void trpcContext.task.getAllForGivenProjects.invalidate(); // Invalidate the specific query
+      void trpcContext.task.getAll.invalidate(); // Invalidate the specific query
+      setInitialTaskData(undefined);
       handleTaskFormSuccess(); // Close form
     },
     onError: (err) => {
@@ -91,7 +92,7 @@ export const TaskManager: React.FC = () => {
   const updateTaskMutation = api.task.update.useMutation({
     onSuccess: () => {
       console.log("Task updated successfully!");
-      void trpcContext.task.getAllForGivenProjects.invalidate(); // Invalidate after update
+      void trpcContext.task.getAll.invalidate(); // Invalidate after update
       handleTaskFormSuccess(); // Close form
     },
     onError: (err) => {
