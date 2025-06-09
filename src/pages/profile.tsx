@@ -14,10 +14,10 @@ const ProfilePage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Your Profile - Taskify</title>
+        <title>Your Profile - TaskTracker</title>
         <meta
           name="description"
-          content="Manage your personal profile on Taskify"
+          content="Manage your personal profile on TaskTracker"
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>

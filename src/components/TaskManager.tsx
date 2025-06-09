@@ -237,7 +237,7 @@ export const TaskManager: React.FC = () => {
             setInitialTaskData(undefined); // Ensure no initial data when creating new
             setShowTaskForm(true);
           }}
-          className="rounded-md bg-green-600 px-6 py-3 text-lg font-semibold text-white shadow-md hover:bg-green-700"
+          className="rounded-md bg-green-700 px-6 py-3 text-lg font-semibold text-white shadow-md hover:bg-green-600"
         >
           + Create New Task
         </button>

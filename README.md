@@ -20,6 +20,10 @@ TaskTracker is a robust and intuitive task management application built with the
 
     Real-time Updates: Utilizes tRPC and React Query for efficient data fetching and updates, ensuring the UI reflects changes promptly.
 
+    Each Project can be seen in Project Tab
+
+    Once you click on Project tab you can view all task associated with that particular project
+
 ✨ Future Features
 
     Dashboard that lets you filter your tasks based on deadlines, tags, and many more
@@ -55,6 +59,10 @@ Task Detail Page (/tasks/[id])
 Project Management (/projects)
 
     Navigate to this page to create and manage your projects.
+
+    View Details of the project by clicking on view button.
+
+    Click on the view Tasks button to see all tasks associated with that project
 
 Tag Management (/tags)
 

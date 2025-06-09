@@ -127,7 +127,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         <span
           className={`inline-flex items-center rounded-full px-2 py-0.5 font-semibold ${getPriorityColor(task.priority)}`}
         >
-          {task.priority.toUpperCase()} PRIORITY
+          {task.priority.toUpperCase()}
         </span>
         {task.deadline && (
           <span className="flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-blue-800">
@@ -168,7 +168,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
         <Link
           href={`/tasks/${task.id}`}
-          className="rounded-md bg-blue-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-600"
+          className="rounded-md bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-purple-800"
         >
           View
         </Link>
@@ -176,7 +176,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
       {(toggleTaskStatusMutation.isError || deleteTaskMutation.isError) && (
         <p className="mt-2 text-xs text-red-500">
-          Error:{" "}
+          :{" "}
           {toggleTaskStatusMutation.error?.message ||
             deleteTaskMutation.error?.message}
         </p>

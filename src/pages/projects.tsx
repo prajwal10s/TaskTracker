@@ -4,7 +4,7 @@ import Head from "next/head";
 import { useState } from "react";
 import { ProjectForm } from "~/components/ProjectForm"; // Import your new component
 import { api } from "~/utils/api"; // For fetching projects
-
+import { ProjectCard } from "~/components/ProjectCard";
 interface Project {
   id: string;
   name: string;
@@ -67,7 +67,7 @@ const ProjectsPage: NextPage = () => {
         <div className="mb-8 flex justify-end">
           <button
             onClick={() => setShowProjectForm(true)}
-            className="rounded-md bg-blue-600 px-6 py-3 text-lg font-semibold text-white shadow-md hover:bg-blue-700"
+            className="rounded-md bg-slate-800 px-6 py-3 text-lg font-semibold text-white shadow-md hover:bg-slate-700"
           >
             + Create New Project
           </button>
@@ -89,18 +89,7 @@ const ProjectsPage: NextPage = () => {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {projects && projects.length > 0 ? (
             projects.map((project) => (
-              <div
-                key={project.id}
-                className="rounded-lg border bg-white p-4 shadow-sm"
-              >
-                <h3 className="mb-2 text-xl font-bold text-gray-800">
-                  {project.name}
-                </h3>
-                {project.description && (
-                  <p className="text-sm text-gray-600">{project.description}</p>
-                )}
-                {/* You might add more project details or action buttons here */}
-              </div>
+              <ProjectCard key={project.id} project={project} />
             ))
           ) : (
             <p className="col-span-full text-center text-gray-600">

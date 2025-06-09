@@ -111,7 +111,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
           </option>
         ))}
       </select>
-      <div className="flex justify-end space-x-3">
+      <div className="my-2 flex justify-end space-x-3">
         {onCancel && (
           <button
             type="button"
@@ -124,7 +124,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
         )}
         <button
           type="submit"
-          className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-md bg-slate-700 px-4 py-2 text-white hover:bg-slate-800 disabled:opacity-50"
           disabled={isLoading || !projectName.trim()}
         >
           {isLoading ? "Creating..." : "Create Project"}
