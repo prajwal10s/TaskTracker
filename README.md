@@ -104,6 +104,18 @@ Initial Project Setup
 
     Font Awesome: For scalable vector icons.
 
+🌐 Deployment:
+
+    This Next.js application is deployed using SST (https://sst.dev/). We've completely configured it for deployment with SST (Serverless Stack) to AWS.
+
+    When deploying with SST  we strategically choose Lambda, CloudFront, and S3 for distinct but complementary reasons:
+
+    AWS Lambda: This is chosen for its serverless nature and scalability. TaskTracker require a server environment for API routes. Server-Side Rendering (SSR), and Image Optimization. Lambda allows us to run this backend code without provisioning or managing servers, automatically scaling up or down based on demand, and you only pay for the compute time consumed.
+
+    Amazon CloudFront: This acts as a Content Delivery Network (CDN), essential for global reach(if to be scaled) and performance. CloudFront caches your application's static assets and SSR responses at edge locations worldwide, delivering content to users from the nearest location. This drastically reduces latency, improves loading times, and enhances user experience, while also handling SSL certificates for secure connections.
+
+    Amazon S3: This provides highly durable, scalable, and cost-effective storage for all your application's static files (HTML, CSS        JavaScript bundles, images, fonts). S3 is ideal for serving static content because it's designed for massive scale and reliability,     making it a perfect origin for CloudFront.
+
 🏛️ Architecture
 
 TaskTracker follows a modern full-stack architecture based on the T3 Stack principles:
