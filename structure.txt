@@ -2,6 +2,7 @@
 ├── .env
 ├── .env.example
 ├── .env.local
+├── .env.production
 ├── .eslintrc.cjs
 ├── .gitignore
 ├── next-env.d.ts
@@ -19,10 +20,13 @@
 │   ├── components/
 │   │   ├── Layout.tsx
 │   │   ├── LoadingSpinner.tsx
+│   │   ├── ProjectCard.tsx
+│   │   ├── ProjectDetailView.tsx
 │   │   ├── ProjectForm.tsx
 │   │   ├── TagManager.tsx
 │   │   ├── TaskCard.tsx
 │   │   ├── TaskDetailView.tsx
+│   │   ├── TaskForm.tsx
 │   │   ├── TaskList.tsx
 │   │   ├── TaskManager.tsx
 │   │   └── UserProfileForm.tsx
@@ -39,6 +43,10 @@
 │   │   ├── dashboard.tsx
 │   │   ├── index.tsx
 │   │   ├── profile.tsx
+│   │   ├── projects/
+│   │   │   ├── [id]/
+│   │   │   │   └── tasks.tsx
+│   │   │   └── [id].tsx
 │   │   ├── projects.tsx
 │   │   ├── tags.tsx
 │   │   └── tasks/
@@ -62,9 +70,12 @@
 │   └── utils/
 │       ├── api.ts
 │       └── styleUtils.ts
+├── sst-env.d.ts
+├── sst.config.ts
+├── sst.example.config
 ├── start-database.sh*
 ├── structure.txt
 ├── tailwind.config.ts
 └── tsconfig.json
 
-17 directories, 51 files
+19 directories, 60 files

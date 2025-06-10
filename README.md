@@ -250,6 +250,7 @@ Follow these steps to get TaskTracker up and running on your local machine:
     ├── .env
     ├── .env.example
     ├── .env.local
+    ├── .env.production
     ├── .eslintrc.cjs
     ├── .gitignore
     ├── next-env.d.ts
@@ -267,10 +268,13 @@ Follow these steps to get TaskTracker up and running on your local machine:
     │   ├── components/
     │   │   ├── Layout.tsx
     │   │   ├── LoadingSpinner.tsx
+    │   │   ├── ProjectCard.tsx
+    │   │   ├── ProjectDetailView.tsx
     │   │   ├── ProjectForm.tsx
     │   │   ├── TagManager.tsx
     │   │   ├── TaskCard.tsx
     │   │   ├── TaskDetailView.tsx
+    │   │   ├── TaskForm.tsx
     │   │   ├── TaskList.tsx
     │   │   ├── TaskManager.tsx
     │   │   └── UserProfileForm.tsx
@@ -278,19 +282,23 @@ Follow these steps to get TaskTracker up and running on your local machine:
     │   ├── lib/
     │   │   └── fontawesome.ts
     │   ├── pages/
-    │   │   ├── \_app.tsx
+    │   │   ├── _app.tsx
     │   │   ├── api/
     │   │   │   ├── auth/
     │   │   │   │   └── [...nextauth].ts
     │   │   │   └── trpc/
-    │   │   │   └── [trpc].ts
+    │   │   │       └── [trpc].ts
     │   │   ├── dashboard.tsx
     │   │   ├── index.tsx
     │   │   ├── profile.tsx
+    │   │   ├── projects/
+    │   │   │   ├── [id]/
+    │   │   │   │   └── tasks.tsx
+    │   │   │   └── [id].tsx
     │   │   ├── projects.tsx
     │   │   ├── tags.tsx
     │   │   └── tasks/
-    │   │   └── [id].tsx
+    │   │       └── [id].tsx
     │   ├── server/
     │   │   ├── api/
     │   │   │   ├── root.ts
@@ -308,9 +316,12 @@ Follow these steps to get TaskTracker up and running on your local machine:
     │   ├── types/
     │   │   └── index.ts
     │   └── utils/
-    │   ├── api.ts
-    │   └── styleUtils.ts
-    ├── start-database.sh\*
+    │       ├── api.ts
+    │       └── styleUtils.ts
+    ├── sst-env.d.ts
+    ├── sst.config.ts
+    ├── sst.example.config
+    ├── start-database.sh*
     ├── structure.txt
     ├── tailwind.config.ts
     └── tsconfig.json
