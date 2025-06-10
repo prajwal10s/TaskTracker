@@ -16,7 +16,7 @@ interface TaskCardProps {
 
 export const TaskCard: React.FC<TaskCardProps> = ({
   task,
-  projectId,
+  projectId: sourceId,
   onTaskUpdated,
   onTaskDeleted,
   onEditClick,
@@ -171,7 +171,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         <Link
           href={{
             pathname: `/tasks/${task.id}`,
-            query: { from: projectId || "" },
+            query: { from: sourceId || "" },
           }}
           className="rounded-md bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-purple-800"
         >

@@ -11,7 +11,6 @@ import { useState } from "react"; // Import useState
 const ProjectTasksPage: NextPage = () => {
   const router = useRouter();
   const projectId = router.query.id as string; // Get id for the projects from the URL
-  console.log(router.query);
   // State to manage the visibility of the task form modal
   const [showTaskFormModal, setShowTaskFormModal] = useState(false);
   // State to hold the task data for editing (if in edit mode)

@@ -16,7 +16,6 @@ export const TaskList: React.FC<TaskListProps> = ({
 }) => {
   const { data: session } = useSession();
   const userId = session?.user?.id;
-
   const {
     data: tasks,
     isLoading: isLoadingTasks,
@@ -58,6 +57,7 @@ export const TaskList: React.FC<TaskListProps> = ({
       {tasks.map((task: TaskWithRelations) => (
         <TaskCard
           key={task.id}
+          projectId={projectId}
           task={task}
           onTaskUpdated={handleTaskChange}
           onTaskDeleted={handleTaskChange}
