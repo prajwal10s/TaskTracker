@@ -141,7 +141,7 @@ export const UserProfileForm: React.FC<UserProfileFormProps> = ({
       <div className="flex justify-end">
         <button
           type="submit"
-          className="rounded-md bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-md bg-blue-500 px-6 py-2 text-white hover:bg-blue-600 disabled:opacity-50"
           disabled={updateUserProfileMutation.isPending}
         >
           {updateUserProfileMutation.isPending ? "Saving..." : "Save Profile"}

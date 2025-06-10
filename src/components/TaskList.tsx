@@ -1,4 +1,3 @@
-// src/components/TaskList.tsx
 import React from "react";
 import { api } from "~/utils/api";
 import { TaskCard } from "./TaskCard";
@@ -8,18 +7,28 @@ import { useSession } from "next-auth/react";
 
 interface TaskListProps {
   onEditTask: (task: TaskWithRelations) => void;
+  projectId?: string;
 }
 
-export const TaskList: React.FC<TaskListProps> = ({ onEditTask }) => {
+export const TaskList: React.FC<TaskListProps> = ({
+  onEditTask,
+  projectId,
+}) => {
   const { data: session } = useSession();
   const userId = session?.user?.id;
+
   const {
     data: tasks,
     isLoading: isLoadingTasks,
     isError: isErrorTasks,
     error: tasksError,
-    refetch, // refetch tasks when needed
-  } = api.task.getAll.useQuery({ assigneeId: userId });
+    refetch,
+  } = api.task.getAll.useQuery(
+    projectId ? { projectId } : { assigneeId: userId },
+    {
+      enabled: !!(projectId || userId), // Only fetch if projectId or userId is available
+    },
+  );
 
   const handleTaskChange = () => {
     // This will refetch tasks after any task is updated or deleted,

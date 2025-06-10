@@ -22,7 +22,9 @@ const TaskDetailPage: NextPage = () => {
       enabled: !!taskId, // Only run query if taskId is available
     },
   );
+  //find where the task was viewed from from the router query
 
+  const source = router.query.from;
   // Handle various loading and error states
   if (!taskId || isLoading) {
     return (
@@ -62,10 +64,12 @@ const TaskDetailPage: NextPage = () => {
             Task Details
           </h1>
           <button
-            onClick={() => router.push("/dashboard")}
+            onClick={() =>
+              source ? router.push("/projects") : router.push("/dashboard")
+            }
             className="rounded-md bg-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-400"
           >
-            ← Back to Dashboard
+            {source ? "← Back to Projects" : "← Back to Dashboard"}
           </button>
         </div>
         <div className="mx-auto max-w-2xl">

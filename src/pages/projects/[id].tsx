@@ -53,7 +53,7 @@ const ProjectDetailPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Project Details: {project.name} - Taskify</title>
+        <title>Project Details: {project.name} - TaskTracker</title>
         <meta
           name="description"
           content={`Details for project: ${project.name}`}

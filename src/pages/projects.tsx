@@ -67,7 +67,7 @@ const ProjectsPage: NextPage = () => {
         <div className="mb-8 flex justify-end">
           <button
             onClick={() => setShowProjectForm(true)}
-            className="rounded-md bg-slate-800 px-6 py-3 text-lg font-semibold text-white shadow-md hover:bg-slate-700"
+            className="rounded-md bg-purple-600 px-6 py-3 text-lg font-semibold text-white shadow-md hover:bg-purple-700"
           >
             + Create New Project
           </button>

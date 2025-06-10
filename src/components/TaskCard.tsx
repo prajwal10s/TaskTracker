@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface TaskCardProps {
   task: TaskWithRelations;
+  projectId?: string;
   onTaskUpdated?: () => void; // Callback to refresh list after status update/delete
   onTaskDeleted?: () => void;
   onEditClick: (task: TaskWithRelations) => void; // Callback to trigger edit form
@@ -15,6 +16,7 @@ interface TaskCardProps {
 
 export const TaskCard: React.FC<TaskCardProps> = ({
   task,
+  projectId,
   onTaskUpdated,
   onTaskDeleted,
   onEditClick,
@@ -167,7 +169,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         </button>
 
         <Link
-          href={`/tasks/${task.id}`}
+          href={{
+            pathname: `/tasks/${task.id}`,
+            query: { from: projectId || "" },
+          }}
           className="rounded-md bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-purple-800"
         >
           View

@@ -16,6 +16,12 @@ TaskTracker is a robust and intuitive task management application built with the
 
     User & Project Assignment: Assign tasks to specific users and associate them with projects.
 
+    User able to view only the projeccts they are part of.
+
+    Projects link shows all the tasks associated with that particular projects.
+
+    From the task view user can move back to where the user came from(dashboard/projects) accordingly.
+
     Responsive Design: Optimized for a seamless experience across various devices (desktop, tablet, mobile).
 
     Real-time Updates: Utilizes tRPC and React Query for efficient data fetching and updates, ensuring the UI reflects changes promptly.
@@ -32,7 +38,7 @@ TaskTracker is a robust and intuitive task management application built with the
 🖥️ Usage
 Dashboard (/dashboard)
 
-This is your main task overview.
+This is your main task overview. This will show all your tasks from all the projects
 
     Create New Task: Click the + Create New Task button to open a modal form. Fill in the task details (title, description, status, priority, deadline, project, assignee, tags) and click "Create Task".
 
@@ -115,6 +121,16 @@ Initial Project Setup
     Amazon CloudFront: This acts as a Content Delivery Network (CDN), essential for global reach(if to be scaled) and performance. CloudFront caches your application's static assets and SSR responses at edge locations worldwide, delivering content to users from the nearest location. This drastically reduces latency, improves loading times, and enhances user experience, while also handling SSL certificates for secure connections.
 
     Amazon S3: This provides highly durable, scalable, and cost-effective storage for all your application's static files (HTML, CSS        JavaScript bundles, images, fonts). S3 is ideal for serving static content because it's designed for massive scale and reliability,     making it a perfect origin for CloudFront.
+
+    Instructions:
+        For the deployment part you can take example for sst.example.config to setup your config and there are a lot more options that can be set which can be found on docs from(https://sst.dev/).
+        Then you have to setup two different IAM profiles for dev and production for separation of concern. These can be setup by following th guide from AWS.
+        Once the profiles are set you are about ready and please make sure to force the region of the application from the sst config as that can drastically impact the speed and responsiveness of your application.
+        Before deployment make sure you uninstall all dependencies and freshly install them for a fresh deployment.
+        To check out the console from sst you have to create a stack in aws which needs to be only in us-east-1 but this is just for the console
+        and your application will still be in the region you chose so no need to get confused there.
+
+        Now you can depoy using npx sst deploy --stage production command
 
 🏛️ Architecture
 
